@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <title>현재 시각</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>현재 시각</h1>
+<p th:text="${currentTime}"></p>
+
+<h2>접속 기록</h2>
+<table>
+    <thead>
+    <tr>
+        <th>기록 시각</th>
+        <th>설명</th>
+        <th>생성일</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="record : ${timeRecords}">
+        <td th:text="${record.recordedTime}"></td>
+        <td th:text="${record.description}"></td>
+        <td th:text="${record.createdAt}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
