@@ -1,0 +1,22 @@
+spring:
+  # Oracle 개발 데이터베이스 설정
+  datasource:
+    url: jdbc:oracle:thin:@//dev-db:1521/devdb
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+    # Oracle UCP 사용
+    type: oracle.ucp.jdbc.PoolDataSource
+    oracleucp:
+      connection-factory-class-name: oracle.jdbc.pool.OracleDataSource
+      sql-for-validate-connection: select 1 from dual
+      connection-pool-name: UCPPool
+      initial-pool-size: 5
+      min-pool-size: 5
+      max-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true

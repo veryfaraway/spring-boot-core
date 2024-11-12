@@ -17,9 +17,21 @@ subprojects {
         mavenCentral()
     }
 
+    dependencies {
+        // Querydsl 설정
+        implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+        annotationProcessor("com.querydsl:querydsl-apt:5.1.0:jakarta")
+        annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+        annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+    }
+
     java {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 
 }

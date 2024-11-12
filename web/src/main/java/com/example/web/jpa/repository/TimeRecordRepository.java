@@ -9,5 +9,5 @@ import com.example.web.jpa.entity.TimeRecord;
  * Spring Data JPA가 자동으로 구현체를 생성합니다.
  */
 public interface TimeRecordRepository extends JpaRepository<TimeRecord, Long> {
-	// 기본 CRUD 메서드는 JpaRepository에서 제공됩니다.
+	// 기본 CRUD 메서드는 JpaRepository 에서 제공됩니다.
 }
