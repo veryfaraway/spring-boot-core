@@ -25,7 +25,7 @@ public class UserQueryRepository {
 	public List<User> findByName(String name) {
 		QUser user = QUser.user;
 		return queryFactory.selectFrom(user)
-			.where(user.name.eq(name))
+			.where(user.username.eq(name))
 			.fetch();
 	}
 }

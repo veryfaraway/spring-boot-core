@@ -14,3 +14,8 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.OracleDialect  # Oracle 21c 이상 버전용 Dialect 설정
+
+
+app:
+  jwtSecret: ${JWT_SECRET}
+  jwtExpirationInMs: 3600000  # 1시간, 예) 24시간(86400000), 7일(604800000)
