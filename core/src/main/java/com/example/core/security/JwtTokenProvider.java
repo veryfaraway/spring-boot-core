@@ -21,82 +21,72 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class JwtTokenProvider {
-	@Value("${app.jwtSecret}")
-	private String jwtSecret; // JWT 서명에 사용되는 비밀 키, openssl rand -hex 64
-
-	@Value("${app.jwtExpirationInMs}")
-	private int jwtExpirationInMs; // JWT 의 만료 시간 (밀리초)
+	private final SecretKey secretKey;
+	private final long tokenValidityInMilliseconds;
 
 	/**
-	 * 사용자 ID로 JWT 토큰을 생성합니다.
 	 *
-	 * @param userId 사용자 ID
-	 * @return 생성된 JWT 토큰
+	 * @param jwtSecret    JWT 서명에 사용되는 비밀 키, openssl rand -hex 64
+	 * @param tokenValidityInMilliseconds    JWT 의 만료 시간 (밀리초)
 	 */
-	public String generateToken(Long userId) {
-		Instant now = Instant.now();
-		Instant expiryDate = now.plus(jwtExpirationInMs, ChronoUnit.MILLIS);
+	public JwtTokenProvider(
+		@Value("${jwt.secret}") String jwtSecret,
+		@Value("${jwt.expiration}") int tokenValidityInMilliseconds) {
+		this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+		this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
+	}
 
-		SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+	/**
+	 * 사용자 ID를 기반으로 JWT 토큰을 생성합니다.
+	 */
+	public String createToken(String username, boolean otpVerified) {
+		Instant now = Instant.now();
+		Instant validity = now.plus(tokenValidityInMilliseconds, ChronoUnit.MILLIS);
 
 		return Jwts.builder()
-			.subject(userId.toString())
+			.subject(username)
+			.claim("otpVerified", otpVerified)
 			.issuedAt(Date.from(now))
-			.expiration(Date.from(expiryDate))
-			.signWith(key)
+			.expiration(Date.from(validity))
+			.signWith(secretKey)
 			.compact();
 	}
 
 	/**
-	 * JWT 토큰으로부터 사용자 ID를 추출합니다.
-	 *
-	 * @param token JWT 토큰 문자열
-	 * @return 추출된 사용자 ID
-	 */
-	public Long getUserIdFromJWT(String token) {
-		SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-
-		Claims claims = Jwts.parser()
-			.verifyWith(key)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload();
-
-		return Long.parseLong(claims.getSubject());
-	}
-
-	/**
-	 * JWT 토큰에서 사용자 ID를 추출합니다.
-	 *
-	 * @param token JWT 토큰
-	 * @return 추출된 사용자 ID
-	 */
-	public Long getUserIdFromToken(String token) {
-		SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-
-		Claims claims = Jwts.parser()
-			.verifyWith(key)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload();
-
-		return Long.parseLong(claims.getSubject());
-	}
-
-	/**
 	 * JWT 토큰의 유효성을 검증합니다.
-	 *
-	 * @param authToken 검증할 JWT 토큰 문자열
-	 * @return 유효한 경우 true, 그렇지 않으면 false
 	 */
-	public boolean validateToken(String authToken) {
+	public boolean validateToken(String token) {
 		try {
-			SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-			Jwts.parser().verifyWith(key).build().parseSignedClaims(authToken);
+			Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
 			return true;
 		} catch (JwtException | IllegalArgumentException e) {
 			log.error("Invalid JWT token: {}", e.getMessage());
 			return false;
 		}
 	}
+
+	/**
+	 * 토큰에서 사용자 이름을 추출합니다.
+	 */
+	public String getUsername(String token) {
+		return Jwts.parser()
+			.verifyWith(secretKey)
+			.build()
+			.parseSignedClaims(token)
+			.getPayload()
+			.getSubject();
+	}
+
+	/**
+	 * 토큰에서 OTP 인증 여부를 확인합니다.
+	 */
+	public boolean isOtpVerified(String token) {
+		return Jwts.parser()
+			.verifyWith(secretKey)
+			.build()
+			.parseSignedClaims(token)
+			.getPayload()
+			.get("otpVerified", Boolean.class);
+	}
+
 }

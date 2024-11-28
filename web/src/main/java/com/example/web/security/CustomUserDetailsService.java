@@ -1,11 +1,14 @@
 package com.example.web.security;
 
+import java.time.LocalDateTime;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.example.core.security.UserPrincipal;
+import com.example.web.jpa.entity.User;
 import com.example.web.jpa.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,24 +23,24 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		return userRepository.findByUsername(username)
-			.map(user -> UserPrincipal.builder()
-				.id(user.getId())
-				.username(user.getUsername())
-				.password(user.getPassword())
-				.authorities(user.getAuthorities())
-				.build())
-			.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+		User user = userRepository.findByUsername(username)
+			.orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+		boolean needOtpVerification = user.getLastOtpVerification() == null ||
+			user.getLastOtpVerification().isBefore(LocalDateTime.now().minusDays(1));
+
+		return org.springframework.security.core.userdetails.User
+			.withUsername(user.getUsername())
+			.password(user.getPassword())
+			.authorities("USER")
+			.accountLocked(needOtpVerification)
+			.build();
 	}
 
-	public UserDetails loadUserById(Long id) {
-		return userRepository.findById(id)
-			.map(user -> UserPrincipal.builder()
-				.id(user.getId())
-				.username(user.getUsername())
-				.password(user.getPassword())
-				.authorities(user.getAuthorities())
-				.build())
-			.orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+	public void updateLastOtpVerification(String username) {
+		User user = userRepository.findByUsername(username)
+			.orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+		user.setLastOtpVerification(LocalDateTime.now());
+		userRepository.save(user);
 	}
 }

@@ -1,11 +1,4 @@
 spring:
-  # Oracle 운영 데이터베이스 설정
-  datasource:
-    url: jdbc:oracle:thin:@//prod-db:1521/proddb
-    driver-class-name: oracle.jdbc.OracleDriver
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
   jpa:
     hibernate:
       ddl-auto: validate
@@ -15,7 +8,17 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.OracleDialect  # Oracle 21c 이상 버전용 Dialect 설정
 
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 3600000  # 1시간 (밀리초)
+  refresh-expiration: 86400000  # 24시간 (밀리초)
+
+logging:
+  level:
+    root: warn
+    org.springframework.web: warn
+    com.kt: warn
 
 app:
-  jwtSecret: ${JWT_SECRET}
-  jwtExpirationInMs: 3600000  # 1시간, 예) 24시간(86400000), 7일(604800000)
+  otp:
+    valid-hours: 24 # OTP 유효 시간 (시간)

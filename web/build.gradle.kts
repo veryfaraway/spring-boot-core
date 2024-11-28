@@ -11,8 +11,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    implementation("org.springframework.session:spring-session-jdbc")
+
+    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3")
     implementation("com.zaxxer:HikariCP") // HikariCP 명시적 추가
 
@@ -23,4 +27,5 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
 }

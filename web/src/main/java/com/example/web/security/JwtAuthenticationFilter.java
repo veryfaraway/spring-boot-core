@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,23 +25,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtTokenProvider tokenProvider;
-	private final CustomUserDetailsService customUserDetailsService;
+	private final UserDetailsService userDetailsService;
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-		FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request,
+		HttpServletResponse response,
+		FilterChain filterChain)
+		throws ServletException, IOException {
+
+		// 로그인, 정적 리소스 등 인증이 필요 없는 경로는 필터 건너뛰기
+		if (shouldNotFilter(request)) {
+			filterChain.doFilter(request, response);
+			return;
+		}
 
 		try {
 			String jwt = getJwtFromRequest(request);
 
 			if (jwt != null && tokenProvider.validateToken(jwt)) {
-				Long userId = tokenProvider.getUserIdFromToken(jwt);
+				String username = tokenProvider.getUsername(jwt);
+				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-				UserDetails userDetails = customUserDetailsService.loadUserById(userId);
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-					userDetails, null, userDetails.getAuthorities());
+				UsernamePasswordAuthenticationToken authentication =
+					new UsernamePasswordAuthenticationToken(
+						userDetails, null, userDetails.getAuthorities());
+
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 		} catch (Exception ex) {
@@ -48,6 +58,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		filterChain.doFilter(request, response);
+	}
+
+	@Override
+	public boolean shouldNotFilter(HttpServletRequest request) {
+		String path = request.getServletPath();
+		return path.startsWith("/api/auth") ||
+			path.startsWith("/css") ||
+			path.startsWith("/js") ||
+			path.startsWith("/images") ||
+			path.equals("/login") ||
+			path.equals("/otp") ||
+			path.equals("/") ||
+			path.startsWith("/h2-console");
 	}
 
 	private String getJwtFromRequest(HttpServletRequest request) {

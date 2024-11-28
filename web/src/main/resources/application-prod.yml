@@ -1,5 +1,11 @@
 spring:
+  # Oracle 운영 데이터베이스 설정
   datasource:
+    url: jdbc:oracle:thin:@//prod-db:1521/proddb
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
     # Oracle UCP 사용
     type: oracle.ucp.jdbc.PoolDataSource
     oracleucp:

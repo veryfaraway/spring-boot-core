@@ -1,36 +1,43 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.3.4" apply false
+    id("org.springframework.boot") version "3.3.6" apply false
     id("io.spring.dependency-management") version "1.1.6" apply false
     id("io.freefair.lombok") version "8.10.2" apply false
 }
 
-subprojects {
+allprojects {
     group = "com.example"
     version = "0.0.1-SNAPSHOT"
-
-    apply(plugin = "java")
-    apply(plugin = "io.spring.dependency-management")
-    apply(plugin = "io.freefair.lombok")
 
     repositories {
         mavenCentral()
     }
 
+}
+
+subprojects {
+    apply(plugin = "java")
+    apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "io.freefair.lombok")
+
     dependencies {
+        implementation("org.slf4j:slf4j-api")
+        implementation("ch.qos.logback:logback-classic")
+
         // Querydsl 설정
         implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
         annotationProcessor("com.querydsl:querydsl-apt:5.1.0:jakarta")
         annotationProcessor("jakarta.annotation:jakarta.annotation-api")
         annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 
-        testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.5")
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.5")
+        testImplementation("org.junit.jupiter:junit-jupiter-api")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
 
     tasks.withType<Test> {
