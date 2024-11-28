@@ -4,7 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.password.PasswordEncoder;
+// import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.web.jpa.entity.User;
 import com.example.web.jpa.repository.UserRepository;
@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class DataInitializer {
+	/*
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
@@ -30,4 +31,5 @@ public class DataInitializer {
 			userRepository.save(new User("user2", passwordEncoder.encode("user123"), "user2@example.com"));
 		};
 	}
+	*/
 }
