@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{layout/layout}">
+<div layout:fragment="content">
+    <h2>메뉴 관리</h2>
+
+    <!-- 메뉴 목록 테이블 -->
+    <table class="menu-table">
+        <thead>
+        <tr>
+            <th>메뉴명</th>
+            <th>URL</th>
+            <th>순서</th>
+            <th>상태</th>
+            <th>관리</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="menu : ${menus}">
+            <td th:text="${menu.name}"></td>
+            <td th:text="${menu.url}"></td>
+            <td th:text="${menu.displayOrder}"></td>
+            <td th:text="${menu.active ? '활성' : '비활성'}"></td>
+            <td>
+                <a th:if="${menu.accessType == 'FULL_ACCESS'}"
+                   th:href="@{/menu/edit(menuId=${menu.id})}"
+                   class="btn btn-edit">수정</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</html>

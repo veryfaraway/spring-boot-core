@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:layout="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>메뉴 관리 시스템</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- 헤더 영역 -->
+<header>
+    <nav>
+        <div class="menu-container" th:fragment="menu">
+            <ul class="main-menu">
+                <li th:each="menu : ${menus}"
+                    th:if="${menu.accessType != 'NO_ACCESS'}">
+                    <a th:href="@{${menu.url}}" th:text="${menu.name}"></a>
+                    <!-- 하위 메뉴 -->
+                    <ul th:if="${not #lists.isEmpty(menu.children)}">
+                        <li th:each="submenu : ${menu.children}"
+                            th:if="${submenu.accessType != 'NO_ACCESS'}">
+                            <a th:href="@{${submenu.url}}"
+                               th:text="${submenu.name}"></a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<!-- 컨텐츠 영역 -->
+<main>
+    <div layout:fragment="content">
+        <!-- 각 페이지의 컨텐츠가 이곳에 삽입됨 -->
+    </div>
+</main>
+
+<!-- 자바스크립트 -->
+<script th:src="@{/js/menu.js}"></script>
+</body>
+</html>
